@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0e1a;
+  --foreground: #e8eaf6;
+
+  --factor-1: #FF6B35;
+  --factor-2: #FF6B8A;
+  --factor-3: #4DA6FF;
+  --factor-4: #4DDD9F;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: ui-rounded, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-space-900: #0a0e1a;
+  --color-space-800: #0d1530;
+  --color-space-700: #111a3a;
+  --color-space-600: #162040;
+  --color-space-500: #1e2a52;
+
+  --color-factor-1: var(--factor-1);
+  --color-factor-2: var(--factor-2);
+  --color-factor-3: var(--factor-3);
+  --color-factor-4: var(--factor-4);
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px 1px currentColor; }
+  50% { box-shadow: 0 0 12px 3px currentColor; }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+body {
+  background: radial-gradient(ellipse at 30% 20%, #0d1530 0%, #0a0e1a 60%, #060a14 100%);
+  color: var(--foreground);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.star-twinkle {
+  animation: twinkle var(--duration, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px currentColor;
+}
+
+.glass {
+  background: rgba(13, 21, 48, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+* {
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
