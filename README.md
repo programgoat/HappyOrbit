@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HappyOrbit 🪐
 
-## Getting Started
+**幸せを宇宙に記録する、幸福筋力トレーニング・アプリ**
 
-First, run the development server:
+A happiness journaling app based on positive psychology (幸福学), where your daily good things become stars in your personal galaxy.
+
+## ✨ Features
+
+### 🗑️ Detox (リセット)
+Write down your stress and negative feelings. Press **DESTROY** and watch them explode into particles that get sucked into a black hole — releasing you from negativity.
+
+### ⚡ Charge (チャージ)
+Record 3 good things that happened today through a guided 3-step wizard. Each entry is **automatically classified** into one of the 4 happiness factors using keyword analysis.
+
+### 🌌 Galaxy (ギャラクシー)
+View your happiness entries as glowing stars in your personal universe. 4 nebulae represent the 4 happiness factors, with your stars drifting gently toward their corresponding nebula.
+
+### 📅 Calendar (カレンダー)
+Monthly calendar view showing your daily completion status with color-coded factor dots.
+
+## 🎯 4 Happiness Factors (前野隆司モデル)
+
+| Factor | Color | Description |
+|--------|-------|-------------|
+| 🚀 やってみよう | Sunset Orange | Growth · Challenge · Curiosity |
+| 💖 ありがとう | Soft Rose | Connection · Gratitude · Love |
+| 🌈 なんとかなる | Sky Blue | Optimism · Release · Peace |
+| 🌿 ありのままに | Mint Green | Independence · Self-acceptance |
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16 (App Router) + TypeScript
+- **Styling**: Tailwind CSS v4
+- **Animation**: Framer Motion
+- **Storage**: localStorage (PWA-ready, no backend needed)
+- **PWA**: Manifest + meta tags for home screen install
+
+## 🚀 Getting Started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to start your happiness journey.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📱 PWA
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app supports installation as a PWA. Add to your phone's home screen for the full experience.
 
-## Learn More
+## 🏗️ Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/
+    page.tsx          # Welcome screen
+    detox/page.tsx    # Detox / stress release
+    charge/page.tsx   # 3 Good Things input
+    galaxy/page.tsx   # Galaxy map visualization
+    calendar/page.tsx # Monthly calendar
+  components/
+    Navigation.tsx    # Bottom navigation
+    StarField.tsx     # Animated star background
+    FactorBadge.tsx   # Factor color badge
+  lib/
+    types.ts          # TypeScript types
+    factors.ts        # Factor definitions & colors
+    classify.ts       # Keyword-based classification
+    storage.ts        # localStorage CRUD
+    utils.ts          # Utility functions
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📊 Data Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```typescript
+interface Happiness {
+  id: string;
+  userId: string;
+  date: string;       // YYYY-MM-DD
+  text: string;
+  factorId: 1 | 2 | 3 | 4;
+  order: 1 | 2 | 3;
+  createdAt: string;
+}
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*HappyOrbit — Because every small happiness deserves its own star in the universe.*

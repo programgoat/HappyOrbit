@@ -13,8 +13,9 @@ interface Particle {
   y: number;
   color: string;
   size: number;
-  vx: number; // final x velocity target (px)
-  vy: number; // intermediate y (px)
+  vx: number;  // final x velocity target (px)
+  vy: number;  // intermediate y (px)
+  midX: number; // pre-computed midpoint x offset (avoids Math.random in render)
 }
 
 const PARTICLE_COLORS = ['#FF6B35', '#FF6B8A', '#4DA6FF', '#4DDD9F', '#a78bfa', '#fbbf24'];
@@ -39,6 +40,7 @@ export default function DetoxPage() {
       size: Math.random() * 8 + 3,
       vx: 300 + Math.random() * 200, // pixels toward black hole on right
       vy: (Math.random() - 0.5) * 100,
+      midX: (Math.random() - 0.5) * 200,
     }));
 
     setParticles(newParticles);
@@ -123,7 +125,7 @@ export default function DetoxPage() {
             }}
             initial={{ scale: 1, opacity: 1, x: 0, y: 0 }}
             animate={{
-              x: [0, (Math.random() - 0.5) * 200, p.vx],
+              x: [0, p.midX, p.vx],
               y: [0, p.vy, 0],
               scale: [1, 1.5, 0.1],
               opacity: [1, 1, 0],

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import FactorBadge from '@/components/FactorBadge';
-import { getHappinessesByDate, getHappinessesByMonth } from '@/lib/storage';
+import { getHappinessesByMonth } from '@/lib/storage';
 import { getDaysInMonth, getFirstDayOfMonth, getTodayString } from '@/lib/utils';
 import { FACTORS } from '@/lib/factors';
 import type { Happiness, FactorId } from '@/lib/types';
@@ -12,21 +12,20 @@ import type { Happiness, FactorId } from '@/lib/types';
 export default function CalendarPage() {
   const today = getTodayString();
   const [currentDate, setCurrentDate] = useState(() => new Date());
-  const [monthData, setMonthData] = useState<Record<string, Happiness[]>>({});
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const yearMonth = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-  useEffect(() => {
+  const monthData = useMemo<Record<string, Happiness[]>>(() => {
     const entries = getHappinessesByMonth(yearMonth);
     const grouped: Record<string, Happiness[]> = {};
     for (const entry of entries) {
       if (!grouped[entry.date]) grouped[entry.date] = [];
       grouped[entry.date].push(entry);
     }
-    setMonthData(grouped);
+    return grouped;
   }, [yearMonth]);
 
   const daysInMonth = getDaysInMonth(year, month);

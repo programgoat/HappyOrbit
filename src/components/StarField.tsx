@@ -18,18 +18,31 @@ interface StarFieldProps {
   className?: string;
 }
 
+// Deterministic pseudo-random number generator (seeded) to ensure
+// stable output across SSR and client renders (no hydration mismatch).
+function seededRng(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+}
+
+function generateStars(count: number): Star[] {
+  const rand = seededRng(count * 7919);
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    x: rand() * 100,
+    y: rand() * 100,
+    size: rand() * 2 + 0.5,
+    duration: rand() * 4 + 2,
+    delay: rand() * 5,
+    opacity: rand() * 0.6 + 0.2,
+  }));
+}
+
 export default function StarField({ count = 60, className = '' }: StarFieldProps) {
-  const stars = useMemo<Star[]>(() => {
-    return Array.from({ length: count }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      duration: Math.random() * 4 + 2,
-      delay: Math.random() * 5,
-      opacity: Math.random() * 0.6 + 0.2,
-    }));
-  }, [count]);
+  const stars = useMemo<Star[]>(() => generateStars(count), [count]);
 
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>

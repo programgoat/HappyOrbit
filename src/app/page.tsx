@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import StarField from '@/components/StarField';
@@ -11,12 +11,11 @@ import { FACTORS } from '@/lib/factors';
 
 export default function WelcomePage() {
   const router = useRouter();
-  const [todayCount, setTodayCount] = useState(0);
 
-  useEffect(() => {
+  const todayCount = useMemo(() => {
     const today = getTodayString();
     const entries = getHappinessesByDate(today);
-    setTodayCount(entries.length);
+    return entries.length;
   }, []);
 
   const isComplete = todayCount >= 3;

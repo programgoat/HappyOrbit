@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarField from '@/components/StarField';
@@ -35,24 +35,37 @@ export default function ChargePage() {
   const [step, setStep] = useState(0);
   const [text, setText] = useState('');
   const [entries, setEntries] = useState<Array<{ text: string; factorId: FactorId }>>([]);
-  const [suggestedFactor, setSuggestedFactor] = useState<FactorId | null>(null);
-  const [confidence, setConfidence] = useState(0);
   const [isSparkle, setIsSparkle] = useState(false);
   const [isDone, setIsDone] = useState(false);
+
+  // Pre-generate sparkle particle positions (stable, avoids impure Math.random in render)
+  const sparkleParticles = useMemo(
+    () =>
+      Array.from({ length: 20 }, (_, i) => ({
+        id: i,
+        left: 20 + ((i * 37 + 13) % 60),
+        top: 20 + ((i * 53 + 7) % 60),
+        width: 4 + (i % 5) + 1,
+        height: 4 + (i % 4) + 1,
+        dy: -(30 + (i * 17) % 50),
+        dx: ((i % 2 === 0 ? 1 : -1) * ((i * 13) % 40)),
+      })),
+    []
+  );
 
   const currentPrompt = STEP_PROMPTS[step];
   const placeholder = currentPrompt.placeholders[step % currentPrompt.placeholders.length];
 
-  useEffect(() => {
+  // Derive classification from text (no side effects needed)
+  const classificationResult = useMemo(() => {
     if (text.trim().length > 3) {
-      const result = classifyText(text);
-      setSuggestedFactor(result.factorId);
-      setConfidence(result.confidence);
-    } else {
-      setSuggestedFactor(null);
-      setConfidence(0);
+      return classifyText(text);
     }
+    return null;
   }, [text]);
+
+  const suggestedFactor = classificationResult?.factorId ?? null;
+  const confidence = classificationResult?.confidence ?? 0;
 
   const bgColor = suggestedFactor ? FACTORS[suggestedFactor].color : '#4DA6FF';
 
@@ -82,7 +95,6 @@ export default function ChargePage() {
     if (step < 2) {
       setTimeout(() => {
         setText('');
-        setSuggestedFactor(null);
         setStep(step + 1);
       }, 400);
     } else {
@@ -109,15 +121,15 @@ export default function ChargePage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {Array.from({ length: 20 }, (_, i) => (
+            {sparkleParticles.map((p) => (
               <motion.div
-                key={i}
+                key={p.id}
                 className="absolute rounded-full"
                 style={{
-                  left: `${20 + Math.random() * 60}%`,
-                  top: `${20 + Math.random() * 60}%`,
-                  width: Math.random() * 8 + 4,
-                  height: Math.random() * 8 + 4,
+                  left: `${p.left}%`,
+                  top: `${p.top}%`,
+                  width: p.width,
+                  height: p.height,
                   backgroundColor: bgColor,
                   boxShadow: `0 0 6px ${bgColor}`,
                 }}
@@ -125,8 +137,8 @@ export default function ChargePage() {
                 animate={{
                   scale: [0, 1.5, 0],
                   opacity: [1, 1, 0],
-                  y: -Math.random() * 80,
-                  x: (Math.random() - 0.5) * 80,
+                  y: p.dy,
+                  x: p.dx,
                 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
               />
