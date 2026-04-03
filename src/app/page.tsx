@@ -89,7 +89,7 @@ export default function WelcomePage() {
         )}
 
         <motion.a
-          href="/detox"
+          href="./detox"
           className="relative px-12 py-4 rounded-full text-lg font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg shadow-purple-500/40 hover:shadow-purple-400/60 transition-shadow"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
