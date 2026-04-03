@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import FactorBadge from '@/components/FactorBadge';
@@ -11,8 +11,13 @@ import type { Happiness, FactorId } from '@/lib/types';
 
 export default function CalendarPage() {
   const today = getTodayString();
+  const [isMounted, setIsMounted] = useState(false);
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -44,6 +49,17 @@ export default function CalendarPage() {
 
   const monthName = currentDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' });
   const selectedEntries = selectedDay ? (monthData[selectedDay] ?? []) : [];
+
+  if (!isMounted) {
+    return (
+      <div className="relative flex flex-col min-h-screen bg-space-900 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, #162040 0%, #0a0e1a 60%)' }} />
+        <div className="relative z-10 flex flex-col flex-1 px-4 pt-10 pb-28 max-w-lg mx-auto w-full" />
+        <Navigation />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex flex-col min-h-screen bg-space-900 overflow-hidden">

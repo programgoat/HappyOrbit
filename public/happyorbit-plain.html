@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HappyOrbit Plain</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #111a33;
+      --text: #e8ecff;
+      --muted: #9aa7d2;
+      --f1: #ff7a3d;
+      --f2: #ff6b8a;
+      --f3: #5eaaff;
+      --f4: #48d89d;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 10%, #1b2955, var(--bg) 60%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 20px 14px 48px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    h2 { margin: 0 0 10px; font-size: 18px; }
+    p { margin: 0; color: var(--muted); }
+
+    textarea, input {
+      width: 100%;
+      background: #0d1430;
+      color: var(--text);
+      border: 1px solid #2d3f74;
+      border-radius: 12px;
+      padding: 10px 12px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    .row { display: grid; gap: 10px; }
+    .row-3 { grid-template-columns: 1fr; }
+
+    .btn {
+      border: 0;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-detox { background: linear-gradient(135deg, #7b3ff5, #355ad6); }
+    .btn-save { background: linear-gradient(135deg, #2abf88, #1286c9); }
+    .btn-refresh { background: linear-gradient(135deg, #394772, #223057); }
+
+    .factors {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .factor {
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.04);
+    }
+
+    canvas {
+      width: 100%;
+      height: 280px;
+      display: block;
+      border-radius: 12px;
+      background: radial-gradient(circle at 50% 50%, #13244f 0%, #0a1025 100%);
+      border: 1px solid #2a3560;
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #c5d0ff;
+      min-height: 18px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      margin-right: 6px;
+      font-size: 12px;
+      color: white;
+    }
+
+    @media (min-width: 760px) {
+      .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="card">
+      <h1>HappyOrbit Plain</h1>
+      <p>HTML/CSS/JavaScriptだけで動く最小版です。Detoxして、3つの幸せを保存し、下の銀河に表示します。</p>
+    </header>
+
+    <section class="card">
+      <h2>1) Detox</h2>
+      <div class="row">
+        <textarea id="detoxText" placeholder="ここにイヤだったことを書く"></textarea>
+        <button id="detoxBtn" class="btn btn-detox">浄化する</button>
+        <div id="detoxStatus" class="status"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2) 3 Good Things</h2>
+      <div class="row row-3">
+        <input id="g1" placeholder="1つ目の幸せ" />
+        <input id="g2" placeholder="2つ目の幸せ" />
+        <input id="g3" placeholder="3つ目の幸せ" />
+      </div>
+      <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="saveBtn" class="btn btn-save">保存する</button>
+        <button id="reloadBtn" class="btn btn-refresh">再描画</button>
+      </div>
+      <div id="saveStatus" class="status"></div>
+      <div class="factors">
+        <div class="factor"><span class="pill" style="background:var(--f1)">やってみよう</span>成長・挑戦</div>
+        <div class="factor"><span class="pill" style="background:var(--f2)">ありがとう</span>感謝・つながり</div>
+        <div class="factor"><span class="pill" style="background:var(--f3)">なんとかなる</span>楽観・安心</div>
+        <div class="factor"><span class="pill" style="background:var(--f4)">ありのままに</span>自分らしさ</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3) Galaxy</h2>
+      <canvas id="galaxy" width="820" height="280"></canvas>
+      <div id="stats" class="status"></div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "happyorbit_plain_v1";
+
+    const factors = {
+      1: { name: "やってみよう", color: getComputedStyle(document.documentElement).getPropertyValue("--f1").trim(), keywords: ["挑戦","試","達成","成長","できた","完了"] },
+      2: { name: "ありがとう", color: getComputedStyle(document.documentElement).getPropertyValue("--f2").trim(), keywords: ["感謝","ありがとう","助け","一緒","優し","褒め"] },
+      3: { name: "なんとかなる", color: getComputedStyle(document.documentElement).getPropertyValue("--f3").trim(), keywords: ["安心","落ち着","大丈夫","解決","気楽","休"] },
+      4: { name: "ありのままに", color: getComputedStyle(document.documentElement).getPropertyValue("--f4").trim(), keywords: ["自分","自然","素直","美味","楽しい","心地"] }
+    };
+
+    const detoxText = document.getElementById("detoxText");
+    const detoxBtn = document.getElementById("detoxBtn");
+    const detoxStatus = document.getElementById("detoxStatus");
+
+    const g1 = document.getElementById("g1");
+    const g2 = document.getElementById("g2");
+    const g3 = document.getElementById("g3");
+    const saveBtn = document.getElementById("saveBtn");
+    const reloadBtn = document.getElementById("reloadBtn");
+    const saveStatus = document.getElementById("saveStatus");
+
+    const canvas = document.getElementById("galaxy");
+    const stats = document.getElementById("stats");
+    const ctx = canvas.getContext("2d");
+
+    function loadData() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { detoxCount: 0, happinesses: [] };
+      } catch {
+        return { detoxCount: 0, happinesses: [] };
+      }
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function classify(text) {
+      const scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
+      const t = text || "";
+      Object.keys(factors).forEach((id) => {
+        factors[id].keywords.forEach((kw) => {
+          if (t.includes(kw)) scores[id] += 1;
+        });
+      });
+      let bestId = 4;
+      let bestScore = -1;
+      Object.keys(scores).forEach((id) => {
+        if (scores[id] > bestScore) {
+          bestScore = scores[id];
+          bestId = Number(id);
+        }
+      });
+      return bestId;
+    }
+
+    function detox() {
+      const text = detoxText.value.trim();
+      if (!text) {
+        detoxStatus.textContent = "入力してから浄化してください。";
+        return;
+      }
+
+      const data = loadData();
+      data.detoxCount += 1;
+      saveData(data);
+
+      // Small visual pulse for detox feedback.
+      document.body.animate(
+        [
+          { filter: "brightness(1)" },
+          { filter: "brightness(1.3)" },
+          { filter: "brightness(1)" }
+        ],
+        { duration: 400, easing: "ease-out" }
+      );
+
+      detoxText.value = "";
+      detoxStatus.textContent = "浄化しました。気持ちを切り替えて、次は幸せを3つ書こう。";
+      drawGalaxy();
+    }
+
+    function saveGoodThings() {
+      const texts = [g1.value.trim(), g2.value.trim(), g3.value.trim()].filter(Boolean);
+      if (texts.length === 0) {
+        saveStatus.textContent = "最低1つは入力してください。";
+        return;
+      }
+
+      const data = loadData();
+      const date = today();
+      const existingCount = data.happinesses.filter((h) => h.date === date).length;
+
+      texts.forEach((text, i) => {
+        const factorId = classify(text);
+        data.happinesses.push({
+          id: "h_" + Date.now() + "_" + i,
+          date,
+          text,
+          factorId,
+          order: Math.min(existingCount + i + 1, 3),
+          createdAt: new Date().toISOString()
+        });
+      });
+
+      saveData(data);
+      saveStatus.textContent = texts.length + "件保存しました。";
+      g1.value = "";
+      g2.value = "";
+      g3.value = "";
+      drawGalaxy();
+    }
+
+    function drawGalaxy() {
+      const data = loadData();
+      const list = data.happinesses;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background stars.
+      for (let i = 0; i < 90; i += 1) {
+        const x = (i * 97) % canvas.width;
+        const y = (i * 53) % canvas.height;
+        const r = (i % 3) + 0.5;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.25)";
+        ctx.fill();
+      }
+
+      // Nebula zones.
+      const centers = {
+        1: [canvas.width * 0.75, canvas.height * 0.3],
+        2: [canvas.width * 0.25, canvas.height * 0.3],
+        3: [canvas.width * 0.75, canvas.height * 0.75],
+        4: [canvas.width * 0.25, canvas.height * 0.75]
+      };
+
+      Object.keys(centers).forEach((id) => {
+        const c = centers[id];
+        const color = factors[id].color;
+        const grd = ctx.createRadialGradient(c[0], c[1], 6, c[0], c[1], 90);
+        grd.addColorStop(0, color + "66");
+        grd.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(c[0], c[1], 90, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+
+        ctx.fillStyle = color;
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(factors[id].name, c[0], c[1] + 105);
+      });
+
+      // Happiness stars.
+      list.forEach((h, i) => {
+        const c = centers[h.factorId];
+        const angle = (i * 137.5) * Math.PI / 180;
+        const radius = 16 + (i % 7) * 12;
+        const x = c[0] + Math.cos(angle) * radius;
+        const y = c[1] + Math.sin(angle) * radius;
+        const color = factors[h.factorId].color;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 4.2, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      });
+
+      const todayCount = list.filter((h) => h.date === today()).length;
+      stats.textContent = "保存済み: " + list.length + "件 / 今日: " + todayCount + "件 / Detox: " + data.detoxCount + "回";
+    }
+
+    detoxBtn.addEventListener("click", detox);
+    saveBtn.addEventListener("click", saveGoodThings);
+    reloadBtn.addEventListener("click", drawGalaxy);
+
+    drawGalaxy();
+  </script>
+</body>
+</html>

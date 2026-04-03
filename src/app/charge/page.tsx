@@ -14,17 +14,17 @@ import type { FactorId, Happiness } from '@/lib/types';
 
 const STEP_PROMPTS = [
   {
-    label: 'Step 1',
+    label: 'ステップ 1',
     question: '今日、あなたを喜ばせてくれたことは？',
     placeholders: ['今日、褒められたことは？', '新しく試したことは？', '達成感を感じた瞬間は？'],
   },
   {
-    label: 'Step 2',
+    label: 'ステップ 2',
     question: '今日、誰かへの感謝を感じた瞬間は？',
     placeholders: ['誰かに感謝したことは？', '誰かと笑った瞬間は？', '助けてもらったことは？'],
   },
   {
-    label: 'Step 3',
+    label: 'ステップ 3',
     question: "今日、あなたが'自分らしかった'瞬間は？",
     placeholders: ['自分らしく過ごせた時間は？', '美味しいと感じたものは？', '心が落ち着いた瞬間は？'],
   },

@@ -1,7 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import StarField from '@/components/StarField';
 import { getHappinessesByDate } from '@/lib/storage';
@@ -10,12 +9,12 @@ import { getTodayString } from '@/lib/utils';
 import { FACTORS } from '@/lib/factors';
 
 export default function WelcomePage() {
-  const router = useRouter();
+  const [todayCount, setTodayCount] = useState(0);
 
-  const todayCount = useMemo(() => {
+  useEffect(() => {
     const today = getTodayString();
     const entries = getHappinessesByDate(today);
-    return entries.length;
+    setTodayCount(entries.length);
   }, []);
 
   const isComplete = todayCount >= 3;
@@ -89,8 +88,8 @@ export default function WelcomePage() {
           </motion.div>
         )}
 
-        <motion.button
-          onClick={() => router.push('/detox')}
+        <motion.a
+          href="/detox"
           className="relative px-12 py-4 rounded-full text-lg font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg shadow-purple-500/40 hover:shadow-purple-400/60 transition-shadow"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -99,7 +98,7 @@ export default function WelcomePage() {
           whileTap={{ scale: 0.97 }}
         >
           START →
-        </motion.button>
+        </motion.a>
 
         {todayCount > 0 && !isComplete && (
           <motion.p

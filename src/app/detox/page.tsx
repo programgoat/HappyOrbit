@@ -194,7 +194,7 @@ export default function DetoxPage() {
                   whileHover={text.trim() ? { scale: 1.02 } : {}}
                   whileTap={text.trim() ? { scale: 0.98 } : {}}
                 >
-                  💥 DESTROY
+                  💥 吹き飛ばす
                 </motion.button>
 
                 <button
